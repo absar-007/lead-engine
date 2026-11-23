@@ -1,3 +1,4 @@
+import os
 import logging
 from dataclasses import dataclass
 
@@ -13,7 +14,7 @@ load_dotenv()
 log = logging.getLogger(__name__)
 
 client = anthropic.Anthropic(max_retries=0, timeout=30.0)
-MODEL = 'claude-haiku-5-5'
+MODEL = os.getenv('LEAD_MODEL', 'claude-haiku-5-5')
 
 UNSUPPORTED = {'minimum', 'maximum', 'minLength', 'maxLength', 'default'}
 

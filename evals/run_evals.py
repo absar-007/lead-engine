@@ -133,7 +133,7 @@ def main():
 
     RESULTS_DIR.mkdir(exist_ok=True)
     stamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    out_file = RESULTS_DIR / f'{stamp}_{PROMPT_VERSION}.json'
+    out_file = RESULTS_DIR / f'{stamp}_{PROMPT_VERSION}_{MODEL}.json'
     out_file.write_text(json.dumps(
         {'model': MODEL, 'prompt_version': PROMPT_VERSION, 'rows': rows}, indent=2))
     print(f'\nSaved: {out_file}')

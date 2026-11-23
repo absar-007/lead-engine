@@ -10,8 +10,11 @@ from app.fingerprint import make_fingerprint
 from app.prompts import PROMPT_VERSION
 
 # Haiku 5.5 prices in USD per million tokens. Verify on Anthropic's pricing page.
-INPUT_PRICE_PER_M = 0.10
-OUTPUT_PRICE_PER_M = 0.50
+PRICES_PER_M = {
+    'claude-haiku-5-5': (0.10, 0.50),    # (input, output) USD per million tokens
+    'claude-sonnet-5-5': (2.00, 10.00),
+}
+INPUT_PRICE_PER_M, OUTPUT_PRICE_PER_M = PRICES_PER_M[MODEL]
 
 
 def calc_cost(input_tokens: int, output_tokens: int) -> float:
