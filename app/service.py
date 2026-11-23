@@ -1,7 +1,9 @@
 import json
+import os
 import time
+from datetime import datetime, timezone
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 
 from app.db import LeadRecord, SessionLocal
@@ -16,7 +18,19 @@ PRICES_PER_M = {
 }
 INPUT_PRICE_PER_M, OUTPUT_PRICE_PER_M = PRICES_PER_M[MODEL]
 
+DAILY_CAP_USD = float(os.getenv('DAILY_CAP_USD', '0.25'))
 
+
+class DailyCapReached(Exception):
+    """Raised when today's spending has hit the daily cap."""
+
+
+def spent_today(session) -> float:
+    start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
+    total = session.scalar(
+        select(func.sum(LeadRecord.cost_usd)).where(LeadRecord.created_at >= start)
+    )
+    return total or 0.0
 def calc_cost(input_tokens: int, output_tokens: int) -> float:
     return (input_tokens * INPUT_PRICE_PER_M + output_tokens * OUTPUT_PRICE_PER_M) / 1_000_000
 
@@ -44,6 +58,8 @@ def process_lead(message: str, source: str | None = None) -> dict:
         existing = find_by_fingerprint(session, fingerprint)
         if existing:
             return to_response(existing, duplicate=True)
+        if spent_today(session) >= DAILY_CAP_USD:
+            raise DailyCapReached()
 
         start = time.perf_counter()
         out = extract_lead(message)

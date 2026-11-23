@@ -94,6 +94,7 @@
           body: JSON.stringify({message: box.value, source: 'sandbox'}),
         });
         if (response.status === 422) { showError('The message must be between 1 and 5000 characters.'); return; }
+        if (response.status === 429) { showError('The demo has hit its daily limit. Please try again tomorrow.'); return; }
         if (!response.ok) { showError('Server error (' + response.status + '). Please try again.'); return; }
         showResult(await response.json());
       } catch (err) {
