@@ -28,6 +28,7 @@ class LeadRecord(Base):
     cost_usd: Mapped[float]
     latency_ms: Mapped[int]
     error: Mapped[str | None] = mapped_column(Text, default=None)
+    sync_status: Mapped[str] = mapped_column(String(20), default='pending')
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )
