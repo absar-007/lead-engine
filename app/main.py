@@ -4,12 +4,13 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import BackgroundTasks, FastAPI, Header, HTTPException
+from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from app.airtable_sync import sync_all_pending, sync_lead
 from app.db import init_db
+from app.ratelimit import rate_limit
 from app.service import DailyCapReached, process_lead
 
 load_dotenv()
@@ -36,7 +37,7 @@ def health():
     return {'status': 'ok'}
 
 
-@app.post('/leads')
+@app.post('/leads', dependencies=[Depends(rate_limit)])
 def create_lead(lead: LeadInput, background_tasks: BackgroundTasks):
     try:
         result = process_lead(lead.message, lead.source)
