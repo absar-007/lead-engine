@@ -114,8 +114,13 @@ def main():
     for tag, (ok, total) in sorted(per_tag.items()):
         print(f'  {tag:<18} {ok}/{total}  {pct(ok, total)}')
 
-    failures = [r for r in rows if not r['all_ok']]
-    print(f'\nFailures ({len(failures)}):')
+    holdout = [r for r in rows if 'holdout' in r['tags']]
+    holdout_ok = sum(r['all_ok'] for r in holdout)
+    print(
+        f'\nHOLDOUT score: {holdout_ok}/{len(holdout)} ({pct(holdout_ok, len(holdout))}) - failures hidden on purpose')
+
+    failures = [r for r in rows if not r['all_ok'] and 'holdout' not in r['tags']]
+    print(f'\nFailures on tuning cases ({len(failures)}):')
     for r in failures:
         if 'crashed' in r:
             print(f"  {r['id']}: CRASHED {r['crashed']}")
