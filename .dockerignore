@@ -1,0 +1,7 @@
+.venv
+.env
+leads.db
+.git
+__pycache__
+.pytest_cache
+evals/results

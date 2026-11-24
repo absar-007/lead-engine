@@ -1,9 +1,11 @@
+import os
 from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, String, Text, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
-engine = create_engine('sqlite:///leads.db')
+DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///leads.db')
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
 
