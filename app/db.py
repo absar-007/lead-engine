@@ -1,11 +1,27 @@
 import os
+import socket
+
+from sqlalchemy.engine import make_url
+from dotenv import load_dotenv
+
+load_dotenv()
 from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, String, Text, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///leads.db')
-engine = create_engine(DATABASE_URL)
+if DATABASE_URL.startswith('postgresql://'):
+    DATABASE_URL = DATABASE_URL.replace('postgresql://', 'postgresql+psycopg://', 1)
+connect_args = {}
+if DATABASE_URL.startswith('postgresql'):
+    connect_args['connect_timeout'] = 10
+    if os.getenv('FORCE_IPV4') == '1':
+        parsed = make_url(DATABASE_URL)
+        connect_args['hostaddr'] = socket.getaddrinfo(
+            parsed.host, parsed.port or 5432, socket.AF_INET
+        )[0][4][0]
+engine = create_engine(DATABASE_URL, pool_pre_ping=True, connect_args=connect_args)
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
 
