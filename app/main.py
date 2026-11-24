@@ -1,3 +1,5 @@
+import json
+import logging
 import os
 import secrets
 from contextlib import asynccontextmanager
@@ -11,10 +13,17 @@ from pydantic import BaseModel, Field
 from app.airtable_sync import sync_all_pending, sync_lead
 from app.db import init_db
 from app.ratelimit import rate_limit
+from app.metrics import compute_metrics
 from app.service import DailyCapReached, process_lead
 
 load_dotenv()
 ADMIN_KEY = os.getenv('ADMIN_KEY')
+logging.basicConfig(level=logging.INFO, format='%(message)s')
+logger = logging.getLogger('leadengine')
+
+
+def log_event(**fields):
+    logger.info(json.dumps(fields))
 STATIC = Path(__file__).parent / 'static'
 
 
@@ -42,7 +51,20 @@ def create_lead(lead: LeadInput, background_tasks: BackgroundTasks):
     try:
         result = process_lead(lead.message, lead.source)
     except DailyCapReached:
+        log_event(event='daily_cap_reached')
         raise HTTPException(status_code=429, detail='Daily demo limit reached. Please try again tomorrow.')
+    log_event(
+        event='lead_processed',
+        lead_id=result['id'],
+        duplicate=result['duplicate'],
+        status=result['status'],
+        category=result['result']['category'],
+        priority=result['result']['priority'],
+        needs_human=result['result']['needs_human'],
+        injection_suspected=result['result']['injection_suspected'],
+        latency_ms=result['latency_ms'],
+        cost_usd=0.0 if result['duplicate'] else round(result['cost_usd'], 6),
+    )
     if result['saved'] and not result['duplicate']:
         background_tasks.add_task(sync_lead, result['id'])
     return result
@@ -58,3 +80,6 @@ def sync_pending(x_admin_key: str | None = Header(default=None)):
 @app.get('/', include_in_schema=False)
 def home():
     return FileResponse(STATIC / 'index.html')
+@app.get('/metrics')
+def metrics():
+    return compute_metrics()

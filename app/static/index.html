@@ -18,6 +18,7 @@
 <body>
   <h1>Lead Engine sandbox</h1>
   <p>Paste a messy lead message, or pick an example, and see what the API extracts.</p>
+  <p><a href="/metrics">See live system metrics</a></p>
 
   <div class="examples" id="examples"></div>
   <textarea id="message" rows="6" maxlength="5000"></textarea>
@@ -77,8 +78,9 @@
       if (flags.children.length) result.appendChild(flags);
       const meta = document.createElement('div');
       meta.className = 'meta';
-      meta.textContent = (data.duplicate ? 'Duplicate: returned the saved result. ' : '')
-        + 'Cost: $' + data.cost_usd.toFixed(5) + ' | Time: ' + data.latency_ms + ' ms';
+      meta.textContent = data.duplicate
+        ? 'Duplicate: returned the saved result, no new cost.'
+        : 'Cost: $' + data.cost_usd.toFixed(5) + ' | Time: ' + data.latency_ms + ' ms';
       result.appendChild(meta);
     }
 
