@@ -1,5 +1,7 @@
 from enum import Enum
+
 from pydantic import BaseModel, Field
+
 
 class Category(str, Enum):
     sales_inquiry = 'sales_inquiry'

@@ -1,7 +1,7 @@
 import json
 import os
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
@@ -26,7 +26,7 @@ class DailyCapReached(Exception):
 
 
 def spent_today(session) -> float:
-    start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
+    start = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
     total = session.scalar(
         select(func.sum(LeadRecord.cost_usd)).where(LeadRecord.created_at >= start)
     )

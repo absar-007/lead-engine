@@ -12,8 +12,8 @@ from pydantic import BaseModel, Field
 
 from app.airtable_sync import sync_all_pending, sync_lead
 from app.db import init_db
-from app.ratelimit import rate_limit
 from app.metrics import compute_metrics
+from app.ratelimit import rate_limit
 from app.service import DailyCapReached, process_lead
 
 load_dotenv()

@@ -3,8 +3,8 @@ import logging
 import os
 
 import httpx
-from sqlalchemy import select
 from dotenv import load_dotenv
+from sqlalchemy import select
 
 from app.db import LeadRecord, SessionLocal
 

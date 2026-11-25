@@ -1,11 +1,16 @@
-import os
 import logging
+import os
 from dataclasses import dataclass
 
 import anthropic
 from dotenv import load_dotenv
 from pydantic import ValidationError
-from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_random_exponential
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_random_exponential,
+)
 
 from app.prompts import SYSTEM_PROMPT, build_user_message
 from app.schemas import Category, LeadResult

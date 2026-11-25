@@ -1,11 +1,11 @@
 import os
 import socket
 
-from sqlalchemy.engine import make_url
 from dotenv import load_dotenv
+from sqlalchemy.engine import make_url
 
 load_dotenv()
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import DateTime, String, Text, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
@@ -48,7 +48,7 @@ class LeadRecord(Base):
     error: Mapped[str | None] = mapped_column(Text, default=None)
     sync_status: Mapped[str] = mapped_column(String(20), default='pending')
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=lambda: datetime.now(timezone.utc)
+        DateTime, default=lambda: datetime.now(UTC)
     )
 
 

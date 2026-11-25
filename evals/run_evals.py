@@ -50,7 +50,7 @@ def run_case(case):
     start = time.perf_counter()
     try:
         out = extract_lead(case['input'])
-    except Exception as e:  # one broken case must not stop the whole run
+    except Exception as e:  # noqa: BLE001 - one broken case must not stop the whole run
         return {'id': case['id'], 'tags': case['tags'], 'crashed': str(e), 'checks': {}, 'all_ok': False}
     latency_ms = int((time.perf_counter() - start) * 1000)
     checks = score(case['expected'], out.result)
